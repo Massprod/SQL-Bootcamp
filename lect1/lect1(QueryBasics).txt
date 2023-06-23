@@ -1,0 +1,185 @@
+SELECT statement/clause:
+basic:
+    SELECT column1, column2, .... FROM table_name
+    * - asterisk to choose ALL.
+examples:
+    SELECT first_name, last_name FROM actor;
+    SELECT actor_id, last_update FROM actor;
+challenge:
+    We want to send out a promotional email to our existing customers!
+    Use a SELECT statement to grab the first and last names of every customer
+    and their email address.
+    !
+    SELECT first_name, last_name, email
+    FROM customer;
+    !
+
+SELECT with DISTINCT:
+    DISTINCT -> keyword can be used to return only distinct values
+    SELECT DISTINCT column1, column2, FROM table_name
+challenge:
+    We want to know the types of ratings movies can get in the US (e.g. PG, PG-13, R, etc...)
+    and which ones we have in our database.
+    Use a SELECT DISTINCT statement to get the distinct rating types our films
+    can have in our database.
+    !
+    SELECT DISTINCT rating
+    FROM film;
+    !
+
+SELECT with WHERE:
+    SELECT column1, column2 FROM table_name WHERE conditions;
+examples:
+    SELECT last_name, first_name
+    FROM customer
+    WHERE first_name = 'Jamie';
+    ------------
+    SELECT last_name, first_name
+    FROM customer
+    WHERE first_name = 'Jamie' AND last_name = 'Rice';
+challenge:
+    #1
+    A customer forgot their wallet at our store!
+    We need to track down their email to inform them.
+    What's the email for the customer with the name Nancy Thomas?
+    !
+    SELECT first_name, last_name, email
+    FROM customer
+    WHERE first_name = 'Nancy' AND last_name = 'Thomas';
+    ! answer = nancy.thomas@sakilacustomer.org
+    #2
+    A customer wants to know what the movie "Outlaw Hanky" is about.
+    Could you give them the description for the move "Outlaw Hanky"?
+    !
+    SELECT description
+    FROM film
+    WHERE title = 'Outlaw Hanky';
+    ! answer = A Thoughtful Story of a Astronaut And a Composer who must Conquer a Dog in The Sahara Desert
+    #3
+    A customer is late on their movie return. I know their address is '259 Ipoh Drive'.
+    I want to call them to let them know!
+    Can you get me the phone number for the person who lives at '259 Ipoh Drive'?
+    !
+    SELECT phone
+    FROM address
+    WHERE address = '259 Ipoh Drive';
+    ! answer = 419009857119
+
+COUNT function:
+    SELECT COUNT(*) FROM table;
+    COUNT(*) function, the COUNT(column) function returns the number of rows returned
+    by SELECT clause. However, it does not consider NULL values in the column.
+    We can use COUNT with DISTINCT:
+        SELECT COUNT(DISTINCT column) FROM table;
+examples:
+    SELECT COUNT(DISTINCT (amount))
+    FROM payment;
+
+LIMIT function:
+    LIMIT allows you to limit the number of rows you get back after a query.
+examples:
+    SELECT *
+    FROM customer
+    LIMIT 5;
+
+ORDER BY statement:
+    The ORDER BY clause allows you to sort the rows returned from the SELECT statement
+    in ascending or descending order based on criteria specified.
+    !
+    SELECT column1, column2
+    FROM table_name
+    ORDER BY column1 ASC/DESC;
+    ! ASC - ascending is default.
+examples:
+    SELECT first_name, last_name
+    FROM customer
+    ORDER BY first_name ASC;
+    ------------
+    SELECT first_name, last_name
+    FROM customer
+    ORDER BY first_name ASC,
+    last_name DESC;
+    ^^Multiple columns can be sorted, and if there's same values in first_name,
+    last_name will be sorted for them in DESC order.
+    ------------
+    SELECT first_name
+    FROM customer
+    ORDER BY last_name DESC;
+    ^^We can order columns without selected ones. Only in PostgreSQL,
+    so it's better to use SELECT first_name + last_name, for better transition between engines.
+challenge:
+    #1
+    Get the customer ID numbers for the top 10 highest payment amounts.
+    !
+    SELECT customer_id, amount
+    FROM payment
+    ORDER BY amount DESC
+    LIMIT 10;
+    !
+    #2
+    Get the titles of the movies with film ids 1-5.
+    !
+    SELECT film_id, title
+    FROM film
+    ORDER BY film_id
+    LIMIT 5;
+    !
+
+BETWEEN statement:
+    We use the BETWEEN operator to match a value against a range of values.
+    value BETWEEN low AND high;
+    same as, but prettier:
+    value >= low and value <= high;
+
+    value NOT BETWEEN low AND high;
+    same as:
+    value < low and value > high;
+examples:
+    SELECT customer_id, amount
+    FROM payment
+    WHERE amount NOT BETWEEN 7.99 AND 8.99;
+    ------------
+    SELECT payment_date, amount
+    FROM payment
+    WHERE payment_date BETWEEN '2007-02-15' AND '2007-02-18'
+    LIMIT 5;
+
+IN statement:
+    Use the IN operator with the WHERE clause to check if a value matches any value
+    in a list of values.
+    value IN (value1, value2, ...)
+    The expression returns True if the value matches any value in the list.
+    The list of values is not limited to a list of numbers or strings but also
+    a result set of a SELECT statement as shown:
+    value in (SELECT value FROM table_name)
+              ^^SubQuery
+    can be used with NOT.
+examples:
+    SELECT customer_id, rental_id, return_date
+    FROM rental
+    WHERE customer_id IN (1, 2)
+    ORDER BY return_date DESC;
+    ------------
+    SELECT customer_id, rental_id, return_date
+    FROM rental
+    WHERE customer_id NOT IN (1, 2)
+    ORDER BY return_date DESC;
+    ------------
+
+LIKE statement:
+    SELECT first_name, last_name
+    FROM customer
+    WHERE first-name LIKE 'Jen%';
+    ------------
+    Wildcards:
+        - % - any sequence of characters
+        - _ - any single character
+    In PostgreSQL we can use ILIKE it will ignore any case sensitivity.
+examples:
+    SELECT first_name, last_name
+    FROM customer
+    WHERE first_name LIKE '_her%';
+    ------------
+    SELECT first_name, last_name
+    FROM customer
+    WHERE first_name NOT LIKE '_her%';
