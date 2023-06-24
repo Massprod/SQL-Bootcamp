@@ -1,0 +1,174 @@
+MIN_MAX_AVG_SUM aggregate functions:
+    basic aggregate functions to use by itself or with GROUP BY
+    (COUNT goes there too)
+examples:
+    SELECT AVG(amount)
+    FROM payment;
+
+    SELECT ROUND(AVG(amount), num) -> num any number for decimal places
+    FROM payment;
+
+    SELECT MIN(amount)
+    FROM payment;
+
+    SELECT MAX(amount)
+    FROM payment;
+
+    SELECT SUM(amount)
+    FROM payment;
+---------
+GROUP BY clause:
+    The GROUP BY clause divides the rows returned from the SELECT statement
+    into groups. For each group, you can apply an aggregate function:
+        - calculating the sum of items
+        - count the number of items in the groups
+
+    SELECT column1, aggregate_function(column2)
+    FROM table_name
+    GROUP BY column1;
+
+examples:
+    SELECT customer_id
+    FROM payment
+    GROUP BY customer_id
+    ORDER BY customer_id;
+    ^^Same as distinct without any aggregate
+
+    SELECT customer_id, SUM(amount)
+    FROM payment
+    GROUP BY customer_id
+    ORDER BY customer_id;
+     ^^Groups sums for every id.
+
+    SELECT customer_id, SUM(amount)
+    FROM payment
+    WHERE customer_id = 1
+    GROUP BY customer_id
+    ORDER BY customer_id;
+    ^^WHERE after FROM, or error
+
+    SELECT customer_id, SUM(amount)
+    FROM payment
+    GROUP BY customer_id
+    ORDER BY SUM(customer_id) DESC;
+    ^^AGGREGATES can be used anywhere
+
+    SELECT staff_id, COUNT(payment_id)
+    FROM payment
+    GROUP BY staff_id;
+    ^^Every sell made by unique staff_id
+
+    SELECT rating, COUNT(rating)
+    FROM film
+    GROUP BY rating;
+    ^^Count every occurrence of distinct ratings, returning this as extra column
+
+    SELECT rating, AVG(rental_rate)
+    FROM film
+    GROUP BY rating;
+    ^^AVG rentals taken by rating
+
+challenges:
+    #1
+    We have two staff members with Staff_IDs 1 and 2. We want to give a bonus to the
+    staff member that handled the most payments.
+    How many payments did each staff member handle? And how much was the total
+    amount processed by each staff member.
+    !
+    SELECT staff_id, COUNT(payment_id), SUM(amount)
+    FROM payment
+    GROUP BY staff_id
+    ORDER BY SUM(amount) DESC;
+    ! staff_id -> all_unique_payments -> all_amounts for each.
+    Correct.
+
+    #2
+    Corporate headquarters is auditing our store!
+    They want to know the average replacement cost of movies by rating.
+    For example, R rated movies have an average replacement cost of $20.23
+    !
+    SELECT rating, ROUND(AVG(replacement_cost), 2)
+    FROM film
+    GROUP BY rating
+    ORDER BY ROUND DESC;
+    ! rating -> avg_replacement_cost -> ordered in desc order by cost and rounded by 2 decimals.
+    Correct.
+
+    #3
+    We want to send coupons to the 5 customers who have spend the most amount of money.
+    Get me the customer IDs of the top 5 spenders.
+    !
+    SELECT customer_id, SUM(amount)
+    FROM payment
+    GROUP BY customer_id
+    ORDER BY SUM DESC
+    LIMIT 5;
+    ! customer_id -> all_spend -> ordered by DESC and limited by 5.
+      Better to use SUM(amount), because right now I'm just using one time calls and because
+      there's only one SUM it's going to work but it not good practice and better be
+      specific on SUM of what im sorting. SUM(amount) <- stick to this. Same for ROUND and any other.
+    Correct.
+---------
+HAVING clause:
+    Similar to WHERE statement but filters for GROUP BY results.
+    The HAVING clause sets the condition for group rows created by the GROUP BY clause
+    after the GROUP BY clause applies while the WHERE clause sets the condition for
+    individual rows before GROUP BY clause applies.
+
+    SELECT column1, aggregate_function(column2)
+    FROM table_name
+    GROUP BY column1
+    HAVING any_condition;
+
+examples:
+    SELECT customer_id, SUM(amount)
+    FROM payment
+    GROUP BY customer_id
+    HAVING SUM(amount) > 200;
+    ^^All customer_id spend more than $200.
+
+    SELECT store_id, COUNT(customer_id)
+    FROM customer
+    GROUP BY store_id
+    HAVING COUNT(customer_id) > 300;
+    ^^All stores with more than 300 customers.
+
+    SELECT rating, AVG(rental_rate)
+    FROM film
+    WHERE rating in ('R', 'G', 'PG')
+    GROUP BY rating
+    HAVING 	AVG(rental_rate) < 3;
+    ^^All ratings with rental_rate < 3.
+
+    SELECT rating, AVG(rental_rate)
+    FROM film
+    GROUP BY rating
+    HAVING 	rating IN ('R', 'G', 'PG')
+    AND AVG(rental_rate) < 3;
+    ^^Same but without WHERE.
+
+challenges:
+    #1
+    We want to know what customers are eligible for our platinum credit card.
+    The requirements are that the customer has at least a total of 40 transaction payments.
+    What customers (by customer_id) are eligible for the credit card?
+    !
+    SELECT customer_id, COUNT(payment_id)
+    FROM payment
+    GROUP BY customer_id
+    HAVING COUNT(payment_id) >= 40
+    ORDER BY COUNT(payment_id) DESC;
+    ! customer_id -> total_num_of_trans -> ordered in desc to see highest.
+    Correct.
+
+    #2
+    When grouped by rating, what movie ratings have an average rental duration
+    of more than 5 days?
+    !
+    SELECT rating, ROUND(AVG(rental_duration), 2)
+    FROM film
+    GROUP BY rating
+    HAVING ROUND(AVG(rental_duration), 2) > 5
+    ORDER BY ROUND;
+    ! rating -> avg_rental_duration > 5 -> ordered in ASC for better look.
+    Correct.
