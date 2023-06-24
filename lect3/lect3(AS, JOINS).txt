@@ -1,0 +1,95 @@
+AS function:
+    Allows us to rename columns or table selections with and alias.
+    Can be used on anything.
+
+    SELECT payment_id AS any_name
+    FROM payment;
+    ^^Renaming column.
+
+    SELECT customer_id, SUM(amount) AS spend
+    FROM payment
+    GROUP BY customer_id;
+    ^^Renaming sum.
+----------
+JOINS clause:
+    INNER JOIN:
+         To get data from both tables, you use the INNER JOIN clause in the SELECT
+        statement as follows:
+            SELECT A.pka(primary_key_A), A.c1, B.pkb, B.c2
+            FROM A
+            INNER JOIN B ON A.pka = B.fka;
+            ^^A - table A, B - table B
+         First, you specify the column in both tables from which you want
+        to select data in the SELECT clause
+         Second, you specify the main table i.e., A in the FROM clause.
+         Third, you specify the table that the main table joins to i.e., B in
+        the INNER JOIN clause. In addition, you put a join condition after
+        the ON keyword i.e, A.pka = B.fka.
+         For each row in the A table, PostgreSQL scans the B table to check if
+        there is any row that matches the condition i.e., A.pka = B.fka.
+         If it finds a match, it combines columns of both rows into one row and
+        add the combined row to the returned result set.
+         Always specify tablename we refer because columns can be duplicated while
+        table names don't -> tablename.column
+         In the end -> The INNER JOIN clause returns rows in A table that
+        have the corresponding rows in the B table.
+examples:
+    SELECT
+    customer.customer_id,
+    first_name,
+    last_name,
+    email,
+    amount,
+    payment_date
+    FROM customer
+    INNER JOIN payment ON payment.customer_id = customer.customer_id;
+    ^^Joined rows from payment table and customer table.
+
+    SELECT
+    customer.customer_id,
+    first_name,
+    last_name,
+    email,
+    amount,
+    payment_date
+    FROM customer
+    INNER JOIN payment ON payment.customer_id = customer.customer_id
+    WHERE customer.customer_id > 100
+    ORDER BY first_name;
+    ^^Don't need to specify which table column from if it's UNIQUE -> present only in one table.
+
+    SELECT
+    payment_id,
+    amount,
+    first_name,
+    last_name
+    FROM payment
+    INNER JOIN staff ON payment.staff_id = staff.staff_id;
+    ^^Selecting columns from 2 tables without selecting staff_id.
+
+    SELECT
+    title,
+    description,
+    COUNT(title) AS present_copies_store1
+    FROM inventory
+    INNER JOIN film on inventory.film_id = film.film_id
+    WHERE store_id = 1
+    GROUP BY title, description
+    ORDER BY title;
+    ^^Number of copies of films by title, description in store1.
+
+    SELECT
+    film.title AS movie_title,
+    language.name AS movie_language
+    FROM film
+    JOIN language ON language.language_id = film.language_id;
+    ^^Movie titles with connected languages from language table.
+
+    SELECT
+    film.title AS movie_title,
+    ln.name AS movie_language
+    FROM film
+    JOIN language AS ln ON ln.language_id = film.language_id;
+    ^^Rename table we reference from language to ln.
+    !
+    AS -> can be ignored and just used white SPACE. Don't like it tho.
