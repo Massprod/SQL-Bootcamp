@@ -1,0 +1,38 @@
+LEFT OUTER JOIN:
+    Return everything from LEFT table, even if it's not present in RIGHT
+    No need to use LEFT OUTER JOIN, same as INNER JOIN => JOIN.
+    LEFT OUTER JOIN => LEFT JOIN.
+examples:
+    SELECT
+    film.film_id, film.title,
+    inventory.inventory_id
+    FROM film
+    LEFT OUTER JOIN inventory ON inventory.film_id = film.film_id;
+    ^^Film_IDs and titles by present in inventory by id.
+
+    SELECT
+    film.film_id, film.title,
+    inventory.inventory_id
+    FROM film
+    LEFT OUTER JOIN inventory ON inventory.film_id = film.film_id
+    WHERE inventory.film_id IS NULL;
+    ^^Film_IDs and titles not presented in inventory by id.
+
+UNION operator:
+    UNION ALL -> to add duplicated rows.
+    The UNION operator combines result sets of two or more SELECT statements
+    into a single result set.
+        SELECT column1, column2
+        FROM table1
+        UNION
+        SELECT column1, column2
+        FROM table2
+        ^^Giving us single output of all 4 columns from 2 different tables combined.
+    The following are rules applied to the queries:
+        - Both queries must return the same number of columns.
+        - The corresponding columns in the queries must have compatible data types.
+     The UNION operator removes all duplicate rows unless the UNION ALL is used.
+     The UNION operator may place the rows in the first query before, after or between
+    the rows in the result set of the second query.
+     To sort the rows in the combined result set by a specified column, you use the
+    ORDER BY clause.

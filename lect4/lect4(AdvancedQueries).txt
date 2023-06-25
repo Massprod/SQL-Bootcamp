@@ -1,0 +1,155 @@
+TIMESTAMPS and EXTRACT:
+    SQL allows us to use the timestamp data type to retain time information.
+
+examples:
+    SELECT extract(day from payment_date)
+    FROM payment;
+
+    SELECT SUM(amount), extract(month from payment_date) AS month_inc
+    FROM payment
+    GROUP BY month_inc;
+    ^^Gross income by month.
+----------
+MATHEMATICAL functions:
+    https://www.postgresql.org/docs/15/functions-math.html
+
+examples:
+    SELECT customer_id + rental_id AS new_id
+    FROM payment;
+    ^^Summ 2 int_columns.
+----------
+STRING functions and operators:
+    https://www.postgresql.org/docs/15/functions-string.html
+
+examples:
+    SELECT concat(first_name, ' ', last_name) AS full_name
+    FROM customer;
+    ^^Combining first_last names into 1 column with white_space between.
+
+    SELECT first_name || ' ' || last_name AS full_name
+    FROM customer;
+    ^^Same but without using function, but operators.
+
+    SELECT first_name, char_length(first_name)
+    FROM customer;
+    ^^Length of values in a row.
+
+    SELECT upper(first_name)
+    FROM customer;
+    ^^Uppercase.
+
+    Same basics as any other language. Just can be used in queries not storing and changing after.
+    https://www.postgresql.org/docs/15/functions-matching.html
+    ^^More advanced matching.
+----------
+SUBQUERY:
+    A subquery allows us to use multiple SELECT statements, where we basically
+    have a query within a query.
+
+    A subquery is a query nested inside another query.
+    To construct a subquery, we put the second query in brackets and use it in the
+    WHERE clause as an expression.
+        SELECT film_id, title, rental_rate
+        FROM film
+        WHERE
+        rental_rate > (SELECT avg(rental_rate) FROM film);
+
+examples:
+    SELECT inventory.film_id
+    FROM rental
+    JOIN inventory ON inventory.inventory_id = rental.inventory_id
+    WHERE
+    return_date BETWEEN '2005-05-29' AND '2005-05-30';
+    ^^All films_ids which is going to be returned in these dates(inclusive).
+
+    with using subquery we can get film_id with titles, based on what going to be returned ->
+->  SELECT film_id, title
+    FROM film
+    WHERE
+    film_id
+    IN (SELECT inventory.film_id
+        FROM rental
+        JOIN inventory ON inventory.inventory_id = rental.inventory_id
+        WHERE
+        return_date BETWEEN '2005-05-29' AND '2005-05-30')
+    ORDER BY film_id;
+----------
+SELF JOIN:
+    You use SELF JOIN when you want to combine rows with other rows in the same table.
+    To perform the SELF JOIN operation, you must use a table alias to help SQL
+    distinguish the left table from the right table of the same table.
+
+    ! Find all employers from one city with name of employee from this city 'Joe' !
+    SELECT employee_name
+    FROM employee
+    WHERE employee_location = 'New York';
+    ^^Assume we can't use search like that, but we still need to find info in this table.
+      Then we can do this with subquery ->
+->  SELECT employee_name
+    FROM employee
+    WHERE
+    employee_location
+    IN (SELECT employee_location
+        FROM employee
+        WHERE employee_name = 'Joe')';
+    ^^Same but now we need to know only the name of employee to find matching cities with others.
+      To do this with SELF JOIN ->
+->  SELECT e1.employee_name
+    FROM
+    employee AS e1,
+    employee AS e2
+    WHERE
+    e1.employee_location = e2.employee_location
+    AND
+    e2.employee_name = 'Joe';
+    ^^We're setting two tables, as e1 and e2 and taking data for them from current table,
+      but they will be treated as different and compared.
+      This approach is faster than SUBQUERY.
+
+examples:
+    SELECT
+    e1.customer_id,
+    e1.first_name,
+    e1.last_name,
+    e2.customer_id,
+    e2.first_name AS compare_first,
+    e2.last_name AS compare_last
+    FROM
+    customer as e1,
+    customer as e2
+    WHERE
+    e1.first_name = e2.last_name
+    ORDER BY e1.first_name;
+    ^^Giving all customer which first_name == last_name of other customer.
+
+    SELECT
+    e1.customer_id,
+    e1.first_name,
+    e1.last_name,
+    e2.customer_id,
+    e2.first_name AS compare_first,
+    e2.last_name AS compare_last
+    FROM
+    customer as e1
+    JOIN customer as e2
+    ON
+    e1.first_name = e2.last_name
+    ORDER BY e1.first_name;
+    ^^We can explicitly INNER JOIN this, result will be the same.
+      Just different syntax used.
+
+    SELF JOIN didn't limited to INNER JOIN, so we can use LEFT or RIGHT OUTER JOINS.
+    SELECT
+    e1.customer_id,
+    e1.first_name,
+    e1.last_name,
+    e2.customer_id,
+    e2.first_name AS compare_first,
+    e2.last_name AS compare_last
+    FROM
+    customer as e1
+    LEFT JOIN customer as e2
+    ON
+    e1.first_name = e2.last_name
+    ORDER BY e1.first_name;
+    ^^Now it's showing all values from e1 table no matter counterparts in e2.
