@@ -1,0 +1,80 @@
+CREATE TABLE:
+    To create a new table in PostgreSQL, you use the CREATE TABLE statement:
+        CREATE TABLE table_name
+        (
+        column_name DATA_TYPE column_constraint,
+        table_constraint
+        )
+        INHERITS existing_table_name;
+
+        column_constraint -> defines the rules for the column e.g., NOT NULL, NULL, UNIQUE.
+        table_constraint -> defines rules for the data in the table.
+        INHERITS -> specify an existing table from which the new table inherits. It means the new table
+                    contains all columns of the existing table and the columns defined in the CREATE TABLE statement.
+
+BASIC CONSTRAINTS:
+    NOT NULL -> the values of the column cannot be NULL.
+    UNIQUE -> the value of the column must be unique across the whole table.
+        ^^However, the column can have many NULL values, they are considered UNIQUE in PostgreSQL.
+          SQL standard only allows one NULL value in the column that has the UNIQUE constraint.
+    PRIMARY KEY -> this constraint is the combination of NOT NULL and UNIQUE constraints.
+                   You can define one column as PRIMARY KEY by using column-level constraint.
+                   In case the primary key contains multiple columns, you must use the table-level.
+    CHECK -> enables to check a condition when you insert or update data.
+             For example, the values in the price column of the product table must be positive.
+    REFERENCES -> constrains the value of the column that exists in a column in another table.
+           ^^Defining FOREIGN KEYS.
+
+TABLE CONSTRAINTS:
+    UNIQUE(column_list) -> to force the value stored in the columns listed inside the parentheses to be unique.
+    PRIMARY KEY(column_list) -> to define the primary key that consists of multiple columns.
+    CHECK(condition) -> to check a condition when inserting or updating data.
+    REFERENCES -> to constrain the value stored in the column that must exist in a column in another table.
+
+example:
+    CREATE TABLE account (
+        user_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(50) NOT NULL,
+        email VARCHAR(350) UNIQUE NOT NULL,
+        created_on TIMESTAMP NOT NULL,
+        last_login TIMESTAMP
+    );
+
+    CREATE TABLE role (
+    	role_id SERIAL PRIMARY KEY,
+	    role_name VARCHAR(255) UNIQUE NOT NULL
+    );
+
+    CREATE TABLE account_role (
+	user_id INTEGER NOT NULL,
+	role_id INTEGER NOT NULL,
+	grant_date TIMESTAMP,
+	PRIMARY KEY (user_id, role_id),
+	CONSTRAINT account_role_id_fkey FOREIGN KEY (role_id)
+		REFERENCES role (role_id) MATCH SIMPLE
+		ON UPDATE NO ACTION
+		ON DELETE NO ACTION,
+	CONSTRAINT account_role_user_id_fkey FOREIGN KEY (user_id)
+		REFERENCES account (user_id) MATCH SIMPLE
+		ON UPDATE NO ACTION
+		ON DELETE NO ACTION
+    );
+    ^^Setting foreign keys without updating, deleting on action.
+
+challenge:
+    A customer's first name, last name,email,sign-up date, and number of minutes spent on the dvd rental site.
+    You should also have some sort of id tracker for them.
+    You have free rein on how you want to create this table.
+    !
+    CREATE TABLE dvd_customers (
+        customer_id SERIAL PRIMARY KEY,
+        first_name VARCHAR(50) NOT NULL,
+        last_name VARCHAR(50) NOT NULL,
+        email VARCHAR(250) UNIQUE,
+        signed_up TIMESTAMP NOT NULL,
+        minutes_spent INTEGER
+    );
+    !
+    Correct. <- Only difference is allowing to NULL email, cuz not everyone should have it or give it.
+

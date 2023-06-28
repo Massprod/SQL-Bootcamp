@@ -1,0 +1,43 @@
+DATA TYPES:
+    PostgreSQL supports the following data types:
+        - Boolean
+        - Character
+        - Number
+        - Temporal i.e., date and time related data types
+        - Special types
+        - Array
+    Boolean:
+        boolean or bool keyword to set column data_type.
+        When you insert data into a Boolean column, PostgreSQL will convert it into
+        the Boolean value e.g., 1, yes, y, t, tru for True
+                                0, no, n, f, false for False
+        When you select data from a Boolean column, PostgreSQL display t for True, f for false,
+        and spce for Null.
+
+    Character:
+        A single character: CHAR.
+        Fixed-length character strings: CHAR(n)
+            If you insert a string that is shorter than the length of the columns,
+            PostgreSQL will pad spaces. If you insert a string that is longer than
+            limit of the column, raises Error.
+        Variable-length character strings: VARCHAR(n).
+            You can store up to n characters with variable-length character strings.
+            PostgreSQL does not pad spaces when the stored string is shorter than the limit.
+
+    Number:
+        Integers:
+            Small integer (SMALLINT) -> is 2-byte signed integer has a range of (-32768, 32767)
+            Integer (INT) -> is 4-byte integer that has a range of (-214783648, 214783647)
+            Serial -> is the same as INT except that PostgreSQL populate value into the column automatically.
+                ^^Similar to AUTO_INCREMENT attribute in other database managers.
+        Floats:
+            FLOAT(n) -> is a floating-point number whose precision, at least, n, up to a maximum of 8 bytes.
+            REAL or FLOAT8 -> is a double-precision (8-byte) floating-point number.
+            NUMERIC or NUMERIC(p,s) -> is a real number with p digits with s number after the decimal point.
+                ^^NUMERIC(p,) -> is the exact number.
+    Temporal:
+        DATE -> stores date data.
+        TIME -> stores time data.
+        TIMESTAMP -> stores date and time.
+        INTERVAL -> stores the difference in timestamps.
+        TIMESTAMPTZ -> store both timestamp and timezone data.
