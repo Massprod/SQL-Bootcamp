@@ -7,11 +7,15 @@ CREATE TABLE:
         )
         INHERITS existing_table_name;
 
+        CREATE TABLE table_name_copy
+        (LIKE table_name);
+        ^^Copy of another table schema.
+
         column_constraint -> defines the rules for the column e.g., NOT NULL, NULL, UNIQUE.
         table_constraint -> defines rules for the data in the table.
         INHERITS -> specify an existing table from which the new table inherits. It means the new table
                     contains all columns of the existing table and the columns defined in the CREATE TABLE statement.
-
+-------------------------
 BASIC CONSTRAINTS:
     NOT NULL -> the values of the column cannot be NULL.
     UNIQUE -> the value of the column must be unique across the whole table.
@@ -24,7 +28,7 @@ BASIC CONSTRAINTS:
              For example, the values in the price column of the product table must be positive.
     REFERENCES -> constrains the value of the column that exists in a column in another table.
            ^^Defining FOREIGN KEYS.
-
+-------------------------
 TABLE CONSTRAINTS:
     UNIQUE(column_list) -> to force the value stored in the columns listed inside the parentheses to be unique.
     PRIMARY KEY(column_list) -> to define the primary key that consists of multiple columns.
@@ -77,4 +81,95 @@ challenge:
     );
     !
     Correct. <- Only difference is allowing to NULL email, cuz not everyone should have it or give it.
+-------------------------
+INSERT statement:
+    SQL provides the INSERT statement that allows you to insert one or more rows into a table at a time.
+       INSERT INTO table(column1, column2, ...)
+       VALUES(value1, value2, ...);
+    To add multiple rows into a table at a time ->
+    -> INSERT INTO table (column1, column2, ...)
+       VALUES (value1, value2, ...),
+              (value1, value2, ...), etc;
+    To insert data that comes from another table, you use the INSERT INTO and SELECT statement ->
+    -> INSERT INTO table
+       SELECT column1, column2, ...
+       FROM another_table
+       WHERE condition;
+
+    We can add in the end -> RETURNING column1, column2, etc...
+      to get info on what rows were affected, and they're new states.
+
+example:
+    CREATE TABLE link(
+	    ID serial PRIMARY KEY,
+	    url VARCHAR(255) NOT NULL,
+	    name VARCHAR(255) NOT NULL,
+	    description VARCHAR(255),
+	    rel VARCHAR(50)
+    );
+
+    INSERT INTO link(url, name)
+    VALUES
+    ('www.google.com', 'Google');
+
+    INSERT INTO link(url, name, description)
+    VALUES
+    ('www.yahoo.com', 'Yahoo', 'yahoos');
+
+    CREATE TABLE link_copy (LIKE link);
+
+    INSERT INTO link_copy
+    SELECT *
+    FROM link
+    WHERE name = 'Bing';
+-------------------------
+UPDATE statement:
+    To change the values of the columns in a table:
+        UPDATE table_name
+        SET column1 = value1,
+            column2 = value2,
+            ...etc.
+        WHERE condition;
+
+example:
+    UPDATE link
+    SET
+        description = 'Description test',
+        rel = 'REL test';
+    ^^Updating every row in a table
+
+    UPDATE link
+    SET
+        name = 'Name test',
+        description = 'Change bing',
+        rel = 'BingChilling'
+    WHERE name LIKE 'Bing';
+    ^^Filtering update to Bing only.
+
+    UPDATE link
+    SET
+        description = name;
+	^^Switch columns with same data type.
+
+	UPDATE link
+    SET
+        description = 'newDescription'
+    WHERE id IN (1, 4)
+    RETURNING id, url, name, description;
+    ^^With return of rows affected.
+-------------------------
+DELETE statement:
+    To delete rows in a table:
+        DELETE FROM table_name
+        WHERE condition;
+        ^^Without WHERE deleting everything.
+          Returns number of ROWS deleted, and 0 if no rows affected.
+
+example:
+    DELETE FROM link
+    WHERE name LIKE 'Goo%';
+
+    DELETE FROM link
+    WHERE id = 3
+    RETURNING id, url, name;
 
