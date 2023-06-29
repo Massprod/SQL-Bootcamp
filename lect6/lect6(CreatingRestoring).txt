@@ -1,0 +1,21 @@
+All of that already been done with pgAdmin4.
+But I skipped part with just Query commands to restore/create db.
+
+1) Go to a working directory \PostgreSQL\15\bin , folder with PostgreSQL executables.
+   There's a lot of executable from create/restore to w.e other function I still don't know.
+2) Create database.
+
+    run -> .\createdb -U postgres dvdrental
+        -U -> username
+        --help to get all commands ;)
+
+3) Restore schemas/data:
+    run -> .\pg_restore -U postgres -d dvdrental C:\Users\Pampam\PycharmProjects\SQL-Bootcamp\lect1\dvdrental.tar
+        -U -> Username
+        -d -> database to restore
+        full path to .tar to restore from
+    only schema ->
+    -> .\pg_restore -s -U postgres -d dvdrental C:\Users\Pampam\PycharmProjects\SQL-Bootcamp\lect1\dvdrental.tar
+
+All of it can be done through pgAdmin, faster and more accessible.
+But still need to practice with command_lines, especially for a server actions.

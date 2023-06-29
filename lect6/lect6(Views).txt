@@ -1,0 +1,34 @@
+VIEWS:
+    A vies is a database object that is of a stored query.
+    A vies can be accessible as a virtual table in PostgreSQL.
+    In other words, a PostgreSQL vies is a logical table that represents data of one
+     or more underlying tables through a SELECT statement.
+    A view helps simplify the complexity of a query because you can query a view, which is based
+     on a complex query, using a simple SELECT statement.
+    Like a table, you can grant permission to users through a view that contains specific
+     data that the users are authorized to see.
+    A view provides a consistent layer even the columns of underlying table changes.
+    To create a view:
+
+        CREATE VIEW view_name AS query;
+
+example:
+    CREATE VIEW customer_info AS
+    SELECT first_name, last_name, email, address, phone
+    FROM customer
+    JOIN address ON customer.address_id = address.address_id;
+
+    SELECT *
+    FROM customer_info;
+    ^^Now we can access all of that by VIEW, show correct data from these tables not just screenshot.
+
+    ALTER VIEW customer_info
+    RENAME TO customer_master_list;
+    ^^We can rename.
+
+    ALTER VIEW customer_master_list
+    RENAME COLUMN first_name TO first_name_test;
+    ^^Rename can be used same as in any table, but it didn't change table naming/data.
+
+    DROP VIEW IF EXISTS customer_master_list;
+    ^^Deleting.
