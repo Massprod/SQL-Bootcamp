@@ -125,6 +125,7 @@ example:
 -------------------------
 UPDATE statement:
     To change the values of the columns in a table:
+
         UPDATE table_name
         SET column1 = value1,
             column2 = value2,
@@ -160,6 +161,7 @@ example:
 -------------------------
 DELETE statement:
     To delete rows in a table:
+
         DELETE FROM table_name
         WHERE condition;
         ^^Without WHERE deleting everything.
@@ -172,4 +174,141 @@ example:
     DELETE FROM link
     WHERE id = 3
     RETURNING id, url, name;
+-------------------------
+ALTER TABLE statement:
+    ALTER TABLE table_name action;
+    Action statements:
+        - Add, remove or rename column.
+        - Set default value for the column.
+        - Add CHECK constraint to a column.
+        - Rename table.
+    Keywords for this^^:
+        - ADD COLUMN column_name DATATYPE.
+        - DROP COLUMN column_name.
+        - RENAME COLUMN column_name TO new_column_name.
+        - ADD CONSTRAINT
+        - RENAME TO new_table_name.
 
+example:
+    CREATE TABLE link (
+        link_id SERIAL PRIMARY KEY,
+        title VARCHAR(512) NOT NULL,
+        url VARCHAR(1024) NOT NULL UNIQUE
+    );
+
+    ALTER TABLE link
+    ADD COLUMN active BOOLEAN;
+
+    ALTER TABLE link
+    DROP COLUMN active;
+
+    ALTER TABLE link
+    RENAME COLUMN title TO title_test;
+    ^^Rename of column
+
+    ALTER TABLE link
+    RENAME TO new_link;
+    ^^Rename of Table
+-------------------------
+DROP TABLE statement:
+    To remove existing table from the database, we can use DROP TABLE:
+
+        DROP TABLE IF EXISTS table_name;
+        ^^IF EXISTS is optional to exclude EXIST ERROR
+
+    To remove table with dependencies, foreign keys we can use CASCADE:
+
+        DROP TABLE IF EXISTS table_name CASCADE;
+        ^^Will delete everything what depends on it.
+
+example:
+    CREATE TABLE test_two (
+        test_id SERIAL PRIMARY KEY
+    );
+
+    DROP TABLE IF EXISTS test_two;
+-------------------------
+CHECK constraint:
+    A CHECK constraint is a kind of constraint that allows you to specify if a value
+     in a column must meet a specific requirement.
+    The CHECK constraint uses a Boolean expression to evaluate the values of a column.
+    If the values of the column pass the check, PostgreSQL will insert or update those values.
+
+        CHECK(any_condition)
+
+    To make personal name to any CONSTRAINT:
+
+        CONSTRAINT desired_name CHECK(any_condition)
+        ^^Setting this check name as desired_name.
+
+example:
+    CREATE TABLE new_users (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR(50),
+        birth_date DATE CONSTRAINT correct_birth CHECK(birth_date >  '1900-01-01'),
+        join_date DATE CHECK(join_date > birth_date),
+        salary INTEGER CONSTRAINT unemployed CHECK(salary > 0)
+    );
+
+    INSERT INTO new_users (first_name, birth_date, join_date, salary)
+    VALUES (
+        'Joe',
+        '1980-02-02',
+        '1981-02-02',
+        -10
+    );
+    ^^Error on SALARY being lower than 0.
+
+    INSERT INTO new_users (first_name, birth_date, join_date, salary)
+    VALUES (
+        'Joe',
+        '1980-02-02',
+        '1981-02-02',
+        10
+    );
+    ^^Correct.
+-------------------------
+NOT NULL constraint:
+    In database theory, NULL is unknown or missing information.
+    The NULL value is different from empty or zero.
+    NOT NULL constraint enforce a column to have some value.
+
+
+example:
+    CREATE TABLE learn_null (
+        first_name VARCHAR(50),
+        sales INTEGER NOT NULL
+    );
+
+    INSERT INTO learn_null(first_name)
+    VALUES ('testName');
+    ^^Error.
+
+    INSERT INTO learn_null(first_name, sales)
+    VALUES ('testName', 12);
+    ^^Correct.
+-------------------------
+UNIQUE constraint:
+    With UNIQUE constraint, every time you insert a new row, PostgreSQL checks if
+     the value is already in the table.
+    If it found that the new values is already there, it would give back an error
+     message and reject the changes.
+    The same process is carried out for the update existing data.
+
+example:
+    CREATE TABLE people (
+        id SERIAL PRIMARY KEY,
+        first_name VARCHAR(50),
+        email VARCHAR(255) CONSTRAINT unique_email_only UNIQUE
+    );
+
+    INSERT INTO people (email)
+    VALUES
+    ('test@gmail.com'),
+    ('test@gmail.com');
+    ^^Error. With correct set name.
+
+    INSERT INTO people (email)
+    VALUES
+    ('test@gmail.com');
+    ^^Correct.
